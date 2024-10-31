@@ -13,7 +13,7 @@ on:
         type: string
         default: '4.6.2.2472'
       python-version:
-        description: 'Versión de Python a usar'
+        description: 'Version of Python to use'
         required: false
         default: '3.8'
         type: string
@@ -62,7 +62,7 @@ jobs:
         run: |
           curl -sSLo sonarscanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ inputs.sonarqube-version }}-linux.zip
           unzip sonarscanner.zip -d $HOME
-          export PATH="$HOME/sonar-scanner-${{ inputs.sonarqube-version }}-linux/bin:$PATH"
+          echo "$HOME/sonar-scanner-${{ inputs.sonarqube-version }}-linux/bin" >> $GITHUB_PATH
 
       - name: Run SonarQube Scan
         env:
@@ -74,7 +74,7 @@ jobs:
             -Dsonar.sources=. \
             -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} \
-            -Dsonar.python.version=3
+            -Dsonar.python.version=${{ inputs.python-version }}
 
       - name: Check SonarQube Quality Gate
         run: |
