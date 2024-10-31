@@ -7,10 +7,6 @@ on:
         description: 'The SonarQube project key for this repository'
         required: true
         type: string
-      sonarqube-host-url:
-        description: 'The URL of the SonarQube server'
-        required: true
-        type: string
       sonarqube-version:
         description: 'The version of SonarQube to use'
         required: true
@@ -32,6 +28,9 @@ on:
         default: 'pytest'
         type: string
     secrets:
+      SONARQUBE_HOST_URL:
+        description: 'The SonarQube host URL'
+        required: true
       SONARQUBE_TOKEN:
         description: 'The SonarQube authentication token'
         required: true
@@ -67,19 +66,19 @@ jobs:
 
       - name: Run SonarQube Scan
         env:
-          SONAR_HOST_URL: ${{ inputs.sonarqube-host-url }}
+          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
           SONAR_LOGIN: ${{ secrets.SONARQUBE_TOKEN }}
         run: |
           sonar-scanner \
             -Dsonar.projectKey=${{ inputs.sonarqube-project-key }} \
             -Dsonar.sources=. \
-            -Dsonar.host.url=${{ inputs.sonarqube-host-url }} \
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} \
             -Dsonar.python.version=3
 
       - name: Check SonarQube Quality Gate
         run: |
-          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ inputs.sonarqube-host-url }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
+          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
             echo "Quality gate failed."
             exit 1
