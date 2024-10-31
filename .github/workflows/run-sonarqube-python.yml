@@ -25,7 +25,7 @@ on:
       tests-command:
         description: 'The command to run the tests'
         required: false
-        default: 'pytest'
+        default: 'coverage run -m pytest && coverage xml -o coverage.xml'
         type: string
     secrets:
       SONARQUBE_HOST_URL:
@@ -52,7 +52,7 @@ jobs:
         if: ${{ inputs.install-command != '' }}
         run: |
           ${{ inputs.install-command }}
-          pip3 install pytest pytest-cov coverage
+          pip3 install pytest coverage
 
       - name: Run Tests
         if: ${{ inputs.tests-command != '' }}
