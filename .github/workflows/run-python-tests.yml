@@ -5,8 +5,6 @@ on:
     inputs:
       python-version:
         description: 'Versión de Python a usar'
-        required: true
-        default: '3.8'
         type: string
 
 jobs:

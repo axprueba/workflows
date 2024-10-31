@@ -9,22 +9,22 @@ on:
         type: string
       sonarqube-version:
         description: 'The version of SonarQube to use'
-        required: true
+        required: false
         type: string
         default: '4.6.2.2472'
       python-version:
         description: 'Versión de Python a usar'
-        required: true
+        required: false
         default: '3.8'
         type: string
       install-command:
         description: 'The command to install dependencies'
-        required: true
+        required: false
         default: 'pip install -r requirements.txt'
         type: string
       tests-command:
         description: 'The command to run the tests'
-        required: true
+        required: false
         default: 'pytest'
         type: string
     secrets:

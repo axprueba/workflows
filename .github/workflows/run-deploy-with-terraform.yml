@@ -5,12 +5,12 @@ on:
     inputs:
       terraform-version:
         description: 'Version of Terraform to use'
-        required: true
+        required: false
         default: '1.0.11'
         type: string
       environment:
         description: 'Deployment environment (e.g., production, staging)'
-        required: true
+        required: false
         default: 'production'
         type: string
     secrets:
