@@ -1,0 +1,88 @@
+name: SonarQube Code Quality Check for Python
+
+on:
+  workflow_call:
+    inputs:
+      sonarqube-project-key:
+        description: 'The SonarQube project key for this repository'
+        required: true
+        type: string
+      sonarqube-host-url:
+        description: 'The URL of the SonarQube server'
+        required: true
+        type: string
+      sonarqube-version:
+        description: 'The version of SonarQube to use'
+        required: true
+        type: string
+        default: '4.6.2.2472'
+      python-version:
+        description: 'Versión de Python a usar'
+        required: true
+        default: '3.8'
+        type: string
+      install-command:
+        description: 'The command to install dependencies'
+        required: true
+        default: 'pip install -r requirements.txt'
+        type: string
+      tests-command:
+        description: 'The command to run the tests'
+        required: true
+        default: 'pytest'
+        type: string
+    secrets:
+      SONARQUBE_TOKEN:
+        description: 'The SonarQube authentication token'
+        required: true
+
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install Dependencies
+        if: ${{ inputs.install-command != '' }}
+        run: |
+          ${{ inputs.install-command }}
+
+      - name: Run Tests
+        if: ${{ inputs.tests-command != '' }}
+        run: |
+          ${{ inputs.tests-command }}
+
+      - name: Download SonarQube Scanner
+        run: |
+          curl -sSLo sonarscanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ inputs.sonarqube-version }}-linux.zip
+          unzip sonarscanner.zip -d $HOME
+          export PATH="$HOME/sonar-scanner-${{ inputs.sonarqube-version }}-linux/bin:$PATH"
+
+      - name: Run SonarQube Scan
+        env:
+          SONAR_HOST_URL: ${{ inputs.sonarqube-host-url }}
+          SONAR_LOGIN: ${{ secrets.SONARQUBE_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=${{ inputs.sonarqube-project-key }} \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ inputs.sonarqube-host-url }} \
+            -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} \
+            -Dsonar.python.version=3
+
+      - name: Check SonarQube Quality Gate
+        run: |
+          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ inputs.sonarqube-host-url }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
+          if [ "$status" != "OK" ]; then
+            echo "Quality gate failed."
+            exit 1
+          else
+            echo "Quality gate passed."
+          fi

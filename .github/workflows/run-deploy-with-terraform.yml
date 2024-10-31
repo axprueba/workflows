@@ -1,0 +1,66 @@
+name: Deploy with Terraform
+
+on:
+  workflow_call:
+    inputs:
+      terraform-version:
+        description: 'Version of Terraform to use'
+        required: true
+        default: '1.0.11'
+        type: string
+      environment:
+        description: 'Deployment environment (e.g., production, staging)'
+        required: true
+        default: 'production'
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'AWS Access Key ID'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'AWS Secret Access Key'
+        required: true
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          echo "Configuring AWS credentials"
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+          echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Plan Terraform Deployment
+        env:
+          TF_VAR_environment: ${{ inputs.environment }}
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform Deployment
+        if: github.event_name != 'pull_request'
+        env:
+          TF_VAR_environment: ${{ inputs.environment }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Cleanup Plan
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Cleaning up Terraform plan file"
+          rm -f tfplan
