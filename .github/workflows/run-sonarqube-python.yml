@@ -49,6 +49,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Set JAVA_HOME to Java 17
+        run: echo "JAVA_HOME_17_X64=$JAVA_HOME" >> $GITHUB_ENV
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -72,6 +75,7 @@ jobs:
 
       - name: Run SonarQube Scan
         env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
           SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
           SONAR_LOGIN: ${{ secrets.SONARQUBE_TOKEN }}
         run: |
@@ -83,6 +87,8 @@ jobs:
             -Dsonar.python.version=${{ inputs.python-version }}
 
       - name: Check SonarQube Quality Gate
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: |
           status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
