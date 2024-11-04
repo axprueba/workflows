@@ -27,6 +27,11 @@ on:
         required: false
         default: 'coverage run -m pytest && coverage xml -o coverage.xml'
         type: string
+      check-result:
+        description: 'Whether to check the SonarQube result'
+        required: false
+        default: 'true'
+        type: boolean
     secrets:
       SONARQUBE_HOST_URL:
         description: 'The SonarQube host URL'
@@ -66,12 +71,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
 
-      - name: Check SonarQube Quality Gate
-        run: |
-          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
-          if [ "$status" != "OK" ]; then
-            echo "Quality gate failed."
-            exit 1
-          else
-            echo "Quality gate passed."
-          fi
+  sonarqube-check:
+    # needs: python-tests
+    uses: axprueba/workflows/.github/workflows/check-sonarqube.yml@master
+    with:
+      sonarqube-project-key: ${{ inputs.sonarqube-project-key }}
+    secrets:
+      SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+      SONARQUBE_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
+    if: ${{ inputs.check-result == true }}

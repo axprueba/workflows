@@ -1,0 +1,31 @@
+name: SonarQube Code Quality Check for Python
+
+on:
+  workflow_call:
+    inputs:
+      sonarqube-project-key:
+        description: 'The SonarQube project key for this repository'
+        required: true
+        type: string
+    secrets:
+      SONARQUBE_HOST_URL:
+        description: 'The SonarQube host URL'
+        required: true
+      SONARQUBE_TOKEN:
+        description: 'The SonarQube authentication token'
+        required: true
+
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check SonarQube Quality Gate
+        run: |
+          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
+          if [ "$status" != "OK" ]; then
+            echo "Quality gate failed."
+            exit 1
+          else
+            echo "Quality gate passed."
+          fi
