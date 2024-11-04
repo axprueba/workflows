@@ -18,13 +18,6 @@ on:
         required: false
         default: 'tf'
         type: string
-    # secrets:
-    #   AWS_ACCESS_KEY_ID:
-    #     description: 'AWS Access Key ID'
-    #     required: true
-    #   AWS_SECRET_ACCESS_KEY:
-    #     description: 'AWS Secret Access Key'
-    #     required: true
 
 jobs:
   terraform-deploy:
@@ -52,17 +45,12 @@ jobs:
           cat ~/.aws/credentials
           echo $EXAMPLE_VAR
 
-      - name: Change to Terraform directory
-        run: cd ${{ inputs.tf_files_path }}
-
       - name: Initialize Terraform
-        run: terraform init
-
-      - name: Plan Terraform Deployment
-        env:
-          TF_VAR_environment: ${{ inputs.environment }}
-        run: terraform plan -out=tfplan
-
+        run: |
+          cd ${{ inputs.tf_files_path }}
+          terraform init
+          terraform plan -out=tfplan
+          
       - name: Apply Terraform Deployment
         if: github.event_name != 'pull_request'
         env:
