@@ -13,13 +13,18 @@ on:
         required: false
         default: 'production'
         type: string
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        description: 'AWS Access Key ID'
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        description: 'AWS Secret Access Key'
-        required: true
+      tf_files_path:
+        description: 'Path to Terraform files'
+        required: false
+        default: 'tf'
+        type: string
+    # secrets:
+    #   AWS_ACCESS_KEY_ID:
+    #     description: 'AWS Access Key ID'
+    #     required: true
+    #   AWS_SECRET_ACCESS_KEY:
+    #     description: 'AWS Secret Access Key'
+    #     required: true
 
 jobs:
   terraform-deploy:
@@ -44,6 +49,10 @@ jobs:
           echo "[default]" > ~/.aws/credentials
           echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
           echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+          cat ~/.aws/credentials
+
+      - name: Change to Terraform directory
+        run: cd ${{ inputs.tf_files_path }}
 
       - name: Initialize Terraform
         run: terraform init
