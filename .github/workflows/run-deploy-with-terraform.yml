@@ -29,7 +29,7 @@ on:
 jobs:
   terraform-deploy:
     runs-on: ubuntu-latest
-
+    name: Deploy with Terraform
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

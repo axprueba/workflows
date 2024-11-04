@@ -10,6 +10,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    name: Run Python Tests
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

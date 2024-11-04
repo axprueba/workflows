@@ -18,7 +18,7 @@ on:
 jobs:
   sonarqube-scan:
     runs-on: ubuntu-latest
-  
+    name: SonarQube Result Check
     steps:
       - name: Check SonarQube Quality Gate
         run: |
