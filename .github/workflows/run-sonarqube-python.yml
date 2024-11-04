@@ -30,7 +30,7 @@ on:
       check-result:
         description: 'Whether to check the SonarQube result'
         required: false
-        default: 'true'
+        default: true
         type: boolean
     secrets:
       SONARQUBE_HOST_URL:
