@@ -72,7 +72,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
 
   sonarqube-check:
-    # needs: python-tests
+    needs: sonarqube-scan
     uses: axprueba/workflows/.github/workflows/check-sonarqube.yml@master
     with:
       sonarqube-project-key: ${{ inputs.sonarqube-project-key }}
