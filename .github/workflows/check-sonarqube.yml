@@ -5,6 +5,7 @@ on:
     inputs:
       environment:
         description: 'Entorno de ejecución'
+        required: true
         type: string
       sonarqube-project-key:
         description: 'The SonarQube project key for this repository'

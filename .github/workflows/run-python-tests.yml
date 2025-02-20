@@ -5,6 +5,7 @@ on:
     inputs:
       environment:
         description: 'Entorno de ejecución'
+        required: true
         type: string
       python-version:
         description: 'Versión de Python a usar'
