@@ -7,20 +7,20 @@ on:
         description: 'Entorno de ejecución'
         required: true
         type: string
-      sonarqube-project-key:
+      sonar-project-key:
         description: 'The SonarQube project key for this repository'
         required: true
         type: string
 
 jobs:
-  sonarqube-scan:
+  sonar-scan:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: SonarQube Result Check
     steps:
       - name: Check SonarQube Quality Gate
         run: |
-          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonarqube-project-key }}" | jq -r '.projectStatus.status')
+          status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonar-project-key }}" | jq -r '.projectStatus.status')
           if [ "$status" != "OK" ]; then
             echo "Quality gate failed."
             exit 1

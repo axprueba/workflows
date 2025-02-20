@@ -7,11 +7,11 @@ on:
         description: 'Entorno de ejecución'
         required: true
         type: string
-      sonarqube-project-key:
+      sonar-project-key:
         description: 'The SonarQube project key for this repository'
         required: true
         type: string
-      sonarqube-version:
+      sonar-version:
         description: 'The version of SonarQube to use'
         required: false
         type: string
@@ -38,7 +38,7 @@ on:
         type: boolean
 
 jobs:
-  sonarqube-scan:
+  sonar-scan:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     name: SonarQube Scan
@@ -69,11 +69,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         with:
-          sonar-project-key: ${{ inputs.sonarqube-project-key }}
+          sonar-project-key: ${{ inputs.sonar-project-key }}
 
-  sonarqube-check:
-    needs: sonarqube-scan
-    uses: axprueba/workflows/.github/workflows/check-sonarqube.yml@master
+  sonar-check:
+    needs: sonar-scan
+    uses: axprueba/workflows/.github/workflows/check-sonar.yml@master
     with:
       environment: ${{ inputs.environment }}
     if: ${{ inputs.check-result == true }}
