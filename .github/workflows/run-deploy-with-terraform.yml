@@ -28,12 +28,8 @@ on:
 jobs:
   terraform-deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     name: Deploy with Terraform
     steps:
-      - name: Debug
-        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
-        
       - name: Checkout code
         uses: actions/checkout@v2
 

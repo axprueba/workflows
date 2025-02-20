@@ -3,10 +3,6 @@ name: SonarQube Code Quality Check for Python
 on:
   workflow_call:
     inputs:
-      environment:
-        description: 'Entorno de ejecución'
-        required: true
-        type: string
       sonar-project-key:
         description: 'The SonarQube project key for this repository'
         required: true
@@ -36,16 +32,19 @@ on:
         required: false
         default: true
         type: boolean
+    secrets:
+      GITHUB_TOKEN:
+        description: 'The GitHub token for the repository'
+        required: true
+      SONARQUBE_TOKEN:
+        description: 'The SonarQube token for the repository'
+        required: true
 
 jobs:
   sonar-scan:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     name: SonarQube Scan
     steps:
-      - name: Debug
-        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
-        
       - name: Checkout Code
         uses: actions/checkout@v2
       
@@ -76,6 +75,5 @@ jobs:
     needs: sonar-scan
     uses: axprueba/workflows/.github/workflows/check-sonar.yml@master
     with:
-      environment: ${{ inputs.environment }}
       sonar-project-key: ${{ inputs.sonar-project-key }}
     if: ${{ inputs.check-result == true }}

@@ -3,10 +3,6 @@ name: SonarQube Code Quality Check for Python
 on:
   workflow_call:
     inputs:
-      environment:
-        description: 'Entorno de ejecución'
-        required: true
-        type: string
       sonar-project-key:
         description: 'The SonarQube project key for this repository'
         required: true
@@ -15,12 +11,8 @@ on:
 jobs:
   sonar-scan:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     name: SonarQube Result Check
     steps:
-      - name: Debug
-        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
-        
       - name: Check SonarQube Quality Gate
         run: |
           status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonar-project-key }}" | jq -r '.projectStatus.status')

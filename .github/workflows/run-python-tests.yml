@@ -3,10 +3,6 @@ name: Run Python Tests
 on:
   workflow_call:
     inputs:
-      environment:
-        description: 'Entorno de ejecución'
-        required: true
-        type: string
       python-version:
         description: 'Versión de Python a usar'
         type: string
@@ -14,12 +10,8 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     name: Run Python Tests
     steps:
-      - name: Debug
-        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
-
       - name: Checkout code
         uses: actions/checkout@v2
 
