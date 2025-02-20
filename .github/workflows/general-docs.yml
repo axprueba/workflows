@@ -1,0 +1,72 @@
+name: Clone Docs from All Org Repositories
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  clone-org-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+
+      - name: Clone only /docs from all repositories
+        run: |
+          mkdir -p all-org-docs
+          cd all-org-docs
+
+          # Get all organizations the authenticated user belongs to
+          gh org list --limit 100 | awk '{print $1}' | while read ORG_NAME; do
+            echo "Fetching repositories for organization: $ORG_NAME"
+            mkdir -p "$ORG_NAME"
+            cd "$ORG_NAME"
+
+            # Get all repositories in the organization
+            gh repo list "$ORG_NAME" --limit 1000 | awk '{print $1}' | while read REPO; do
+              REPO_NAME=$(basename "$REPO") # Extract repo name
+              echo "Processing repository: $REPO_NAME"
+
+              # Create directory for this repo
+              mkdir -p "$REPO_NAME"
+
+              # Clone the repo, but only the docs directory
+              git clone --depth 1 --filter=blob:none --sparse "https://github.com/$REPO.git" "$REPO_NAME"
+              cd "$REPO_NAME"
+
+              # Enable sparse-checkout and only fetch /docs
+              git sparse-checkout init --cone
+              git sparse-checkout set docs
+
+              # Move docs folder out and clean up
+              if [ -d "docs" ]; then
+                mv docs ../
+              fi
+              cd ..
+              rm -rf "$REPO_NAME"
+
+            done
+
+            cd ..
+          done
+
+      - name: Archive and Upload Docs (Optional)
+        run: |
+          tar -czf all-org-docs.tar.gz all-org-docs
+        continue-on-error: true
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: all-org-docs
+          path: all-org-docs.tar.gz
