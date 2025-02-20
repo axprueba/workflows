@@ -43,6 +43,9 @@ jobs:
     environment: ${{ inputs.environment }}
     name: SonarQube Scan
     steps:
+      - name: Debug
+        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
+        
       - name: Checkout Code
         uses: actions/checkout@v2
       

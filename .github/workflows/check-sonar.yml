@@ -18,6 +18,9 @@ jobs:
     environment: ${{ inputs.environment }}
     name: SonarQube Result Check
     steps:
+      - name: Debug
+        run: "echo \"Running for: '${{ inputs.environment }}', ENVIRON_VARIABLE content: '${{ env.ENVIRON_VARIABLE }}'\""
+        
       - name: Check SonarQube Quality Gate
         run: |
           status=$(curl -s -u ${{ secrets.SONARQUBE_TOKEN }}: "${{ secrets.SONARQUBE_HOST_URL }}/api/qualitygates/project_status?projectKey=${{ inputs.sonar-project-key }}" | jq -r '.projectStatus.status')
