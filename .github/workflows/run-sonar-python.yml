@@ -67,13 +67,12 @@ jobs:
         uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        with:
-          sonar-project-key: ${{ inputs.sonar-project-key }}
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}          
 
   sonar-check:
     needs: sonar-scan
     uses: axprueba/workflows/.github/workflows/check-sonar.yml@master
     with:
       environment: ${{ inputs.environment }}
+      sonar-project-key: ${{ inputs.sonar-project-key }}
     if: ${{ inputs.check-result == true }}
