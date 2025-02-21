@@ -1,0 +1,35 @@
+name: "Docker Build & Push"
+description: "Build and push a Docker image"
+inputs:
+  registry:
+    description: "Docker Registry URL"
+    required: true
+  username:
+    description: "Docker Username"
+    required: true
+  password:
+    description: "Docker Password"
+    required: true
+  image_name:
+    description: "Docker Image Name"
+    required: true
+  old_tag:
+    description: "Docker Old Image Tag"
+    required: true
+  new_tag:
+    description: "Docker New Image Tag"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Login to Docker Registry
+      shell: bash
+      run: echo "${{ inputs.password }}" | docker login -u "${{ inputs.username }}" --password-stdin ${{ inputs.registry }}
+
+    - name: Pull Docker Image
+      shell: bash
+      run: docker pull ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.old_tag }}
+
+    - name: Push Docker Image
+      shell: bash
+      run: docker tag ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.old_tag }} ${{ inputs.registry }}/${{ inputs.image_name }}:${{ inputs.new_tag }}
