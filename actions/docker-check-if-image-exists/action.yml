@@ -1,5 +1,5 @@
-name: "Docker retag image"
-description: "Retag a Docker image"
+name: "Docker check if image exists"
+description: "Check if a Docker image exists"
 inputs:
   registry:
     description: "Docker Registry URL"
